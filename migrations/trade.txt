@@ -1,0 +1,13 @@
+Description: add quotes
+Created: 2016-01-17 20:44:37.147614 UTC
+Depends: 
+Apply: |
+  create table quotes (
+    date date not null,
+    open decimal(9, 2) not null,
+    close decimal(9, 2) not null,
+    adjusted_close decimal(9, 2) not null,
+    high decimal(9, 2) not null,
+    low decimal(9, 2) not null,
+    volume integer not null
+  )
