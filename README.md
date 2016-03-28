@@ -1,8 +1,10 @@
 ## data
+
+An indicator that has no data dependencies.
 (somewhere we will store the data sources available)
 
-input : last 3 days
-output : 3 days of apple close prices
+input : close,volume last 3 days
+output : 3 days of apple close and volume
 
 
 ```python
@@ -10,14 +12,17 @@ output : 3 days of apple close prices
 
 # note : could be ordereddict
 output = OrderedDict([
-    ('2015-01-01', {'close_price': 100, 'volume': 1000}),
-    ('2015-01-02', {'close_price': 110, 'volume': 1100})
+    ('2015-01-01', {'close': 100, 'volume': 1000}),
+    ('2015-01-02', {'close': 110, 'volume': 1100})
 ])
 ```
 
 
-## indicator line
-(need: somewhere we will store the indicators available)
+## indicator
+
+indicator :: [data_record] -> [value]
+(need to store the indicators available)
+
 
 1. close price over volume
 
@@ -25,24 +30,39 @@ output = OrderedDict([
 input: (raw data), (indicator parameters)
 close price / volume
 
+@indicator_requires('data.close', 'data.volume')
+def close_price_over_volume(data):
+    return [
+        point['close'] / point['volume']
+        for point in data
+    ]
 ```
 
-2. nine day moving average of close price over volume
+2. n day moving average of close price over volume
 
+```
+@indicator_requires('indicator.close_price_over_volume')
+def n_day_moving_average_of_close_price_over_volume(n_days, data):
+    if len(data) < n_days:
+        raise ValueError('Need more data: {} < {}'
+                         .format(len(data), n_days)
+    averages = []
+
+    for point in data:
+        window = _
+        average = _
+        averages.append(average)
+
+    return averages
+```
 
 3. close price
 
-indicators
-(bundles of indicator lines
-
-a. uses #1 and #3
-b. uses #2 and #3
-
-
-strategy
+# strategy
 inputs: indicators, inventory
 
 this is an ok strategy
+(1: indicator 1; 3: indicator 3)
 '1 < 3': sell
 '1 = 3': hold
 '1 > 3': buy
@@ -106,3 +126,59 @@ starting inventory
     ('2015-01-03': {'AAPL': 10})
 ]
 ```
+
+
+# Interfaces
+
+## run experiment
+bot, cli
+
+- stock(s)
+- time range
+- strategy (defines indicators)
+? starting balance
+? starting portfolio
+
+Retrieve all data for the time range.
+
+def get_data(symbol, sources, start_date, end_date=None) -> DataFrame:
+    """inputs 'aapl', ['close'], 2015-01-01
+
+    returns DataFrame([
+      {'close': 1},
+      {'close': 2},
+    ], index=[2015-01-01, 2015-01-02])
+
+    """
+Calculate all indicators for each time step.
+
+TODO
+
+Evaluate the strategy for each time step.
+
+TODO
+
+Outputs: time series of actions, final result
+
+## start experiment
+bot
+
+- stock(s)
+- strategy
+
+### step experiments
+cron
+
+## stop experiment (experiment_id)
+bot
+
+## list experiments
+bot, cli
+
+## list experiment (experiment_id)
+bot, cli
+
+## show portfolio (experiment_id)
+bot, cli
+
+*TODO transition to pandas.DataFrame*
