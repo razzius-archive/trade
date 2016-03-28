@@ -58,7 +58,7 @@ def n_day_moving_average_of_close_price_over_volume(n_days, data):
 
 3. close price
 
-# strategy
+## strategy
 inputs: indicators, inventory
 
 this is an ok strategy
@@ -141,6 +141,7 @@ bot, cli
 
 Retrieve all data for the time range.
 
+```
 def get_data(symbol, sources, start_date, end_date=None) -> DataFrame:
     """inputs 'aapl', ['close'], 2015-01-01
 
@@ -150,6 +151,8 @@ def get_data(symbol, sources, start_date, end_date=None) -> DataFrame:
     ], index=[2015-01-01, 2015-01-02])
 
     """
+```
+
 Calculate all indicators for each time step.
 
 TODO
