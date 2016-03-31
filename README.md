@@ -139,10 +139,10 @@ bot, cli
 ? starting balance
 ? starting portfolio
 
-Retrieve all data for the time range.
+1. Retrieve all data for the time range.
 
-```
-def get_data(symbol, sources, start_date, end_date=None) -> DataFrame:
+```python
+def get_data(symbol, data_names, start_date, end_date=None) -> DataFrame:
     """inputs 'aapl', ['close'], 2015-01-01
 
     returns DataFrame([
@@ -150,18 +150,105 @@ def get_data(symbol, sources, start_date, end_date=None) -> DataFrame:
       {'close': 2},
     ], index=[2015-01-01, 2015-01-02])
 
+    Can call external APIs, read from database, calculate random numbers...
+    if I pass in ['sf_temp']
+        -> somehow get the SF temp data
     """
+    output = DataFrame()
+
+    for data_name in data_names:
+        if data_name == 'sf_temp':
+            output['sf_temp'] = request_weatherbug_weather_data('sf')
+        elif data_name == 'boston_temp':
+            output['boston_temp'] = request_weatherbug_weather_data('boston')
+
+    return output
 ```
 
 Calculate all indicators for each time step.
 
-TODO
+```python
+def calculate_indicators(input_df, indicator_names) -> DataFrame:
+    """inputs *df*, ['Basic MACD (26-day 12-day, 9-day)', 'Moving average of high price', 'SF temp / boston temp']
+                    -> close price 						-> high price			-> sf temperature, boston temp
+ -> data_names becomes ['close', 'high', 'sf_temp', 'boston_temp']
+
+    1. (26-day exponential moving average)| (9-day exponential moving average)
+
+    returns DataFrame
+    """
+```
 
 Evaluate the strategy for each time step.
 
-TODO
+```python
+def evaluate_strategy(indicators_df, strategy) -> Series:
+    """
+                TimeSeries
+    2012-x-1	{'action': 'sell 10 apple stock'}
+    2012-x-2	{'action': 'buy 10 apple stock'}
+    2012-x-3	{'action': 'sell 10 apple stock'}
+    """
+    return strategy.execution_function(indicators_df)
+
+```
+
+
+
+```python
+class Strategy():
+    """Define a strategy that can be tested in an experiment"""
+    def __init__(self, name, indicators, execution_function):
+        self.name = name
+        self.indicators = indicators
+        self.execution_function = execution_function
+
+    def resolve_data_dependencies(self):
+        """Return a list of all the raw data names needed for this strategy to be tested."""
+        return ???
+
+def resolve_data_dependencies(indicators : List)
+
+def strategy_function(indicators_df) -> Series:
+    for ind_value, index in indicators_df:
+        if ind_value[0] > ind_value[1]:
+            return {'action': 'BUY'}
+
+        if ind_value[0] > ind_value[1]:
+            if indicators_df.iloc[index - 1, 0] > ind_value[0]:
+                return {'action': 'sell'}
+
+
+my_strategy = ([-indicators-], -function-)
+my_strategy = Strategy(['26-day exp moving average'], strategy_function)
+
+def run_experiment(stock, strategy, time_range):
+
+    data_df = get_data('AAPL', strategy.resolve_data_dependencies())
+    indicator_df = calculate_indicators(data_df, [strategy.indicators])
+    action_series = evaluate_strategy(indicator_df, strategy)
+
+    return action_series
+
+actions_1 = run_experiment('AAPL', my_strategy, 'last 2 weeks')
+```
 
 Outputs: time series of actions, final result
+
+# Razzi example strategy
+
+Uses the temperature in SF versus Boston. If it's hotter in SF, sell. Otherwise buy.
+
+Indicators:
+    sf temp / boston temp
+Data dependencies:
+    ['sf_temp', 'iowa_temp']
+
+
+strategy
+    -> indicators
+        -> data dependencies
+
 
 ## start experiment
 bot
@@ -169,17 +256,22 @@ bot
 - stock(s)
 - strategy
 
+
 ### step experiments
 cron
+
 
 ## stop experiment (experiment_id)
 bot
 
+
 ## list experiments
 bot, cli
 
+
 ## list experiment (experiment_id)
 bot, cli
+
 
 ## show portfolio (experiment_id)
 bot, cli
