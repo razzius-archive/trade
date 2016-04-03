@@ -3,11 +3,14 @@ import random
 import os
 import sys
 
-import requests
+import parsedatetime
+# import requests
 
 
 SF_CITY_ID = 5391959
+
 # http://api.openweathermap.org/data/2.5/box/city?bbox=12,32,15,37,10&cluster=yes&appid=
+
 WUNDERGROUND_API_KEY = os.environ['WUNDERGROUND_API_KEY']
 
 
@@ -25,8 +28,8 @@ def _get_random_ratio(date_range):
 
 def _get_sf_high_temperature(date_range):
     """Inputs:
-    date(2015, 1, 1) 
-    
+    date(2015, 1, 1)
+
     outputs:
     [
         33,
@@ -66,8 +69,13 @@ def main(date_range, indicators):
 
 
 if __name__ == '__main__':
-    # TODO parse date range from argv
-    date_range = (date(2016, 2, 1), date(2016, 2, 21))
+    date_text = ' '.join(sys.argv[1:])
+
+    calendar = parsedatetime.Calendar()
+
+    start_date = calendar.parseDT(date_text).date()
+
+    date_range = (start_date, date.today())
     # indicators = ['sf_high_temperature']
     indicators = ['random']
 
